@@ -1,0 +1,27 @@
+<div id="detalle">
+
+</div>
+<div id="grilla">
+    <input type="text" class="buscador">
+    <table>
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="row in listadoProductosCtrl.productos | filter:listadoProductosCtrl.filtro | limitTo:listadoProductosCtrl.end:listadoProductosCtrl.start"
+            ac-last-list-item ng-click="listadoProductosCtrl.detalle(row.producto_id)">
+            <td class="">{{row.nombre}}</td>
+            <td class="">{{row.apellido}}</td>
+            <td class="">{{row.email}}</td>
+            <td class="">{{row.telefono}}</td>
+        </tr>
+    </table>
+</div>
+<div id="botonera">
+
+</div>

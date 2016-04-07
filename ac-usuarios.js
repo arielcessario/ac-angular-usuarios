@@ -8,7 +8,7 @@
         currentScriptPath = window.installPath + '/ac-angular-usuarios/includes/ac-usuarios.php';
     }
 
-    angular.module('acUsuarios', ['ngCookies'])
+    angular.module('acUsuarios', [])
         .config(['$routeProvider', 'jwtInterceptorProvider', '$httpProvider',
             function ($routeProvider, jwtInterceptorProvider, $httpProvider) {
 
@@ -32,8 +32,25 @@
         })
         .factory('UserService', UserService)
         .service('UserVars', UserVars)
+        .component('UserControl', UserControl)
     ;
 
+    function UserControl(){
+        return {
+            templateUrl: 'ac-angular-usuarios.html',
+            controller: UserController,
+            bindings: {
+                hero: '<',
+                onDelete: '&',
+                onUpdate: '&'
+            }
+        }
+    }
+
+    UserController.$inject = [];
+    function UserController(){
+
+    }
 
     UserService.$inject = ['$http', '$cookieStore', 'store', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth'];
     function UserService($http, $cookieStore, store, UserVars, $cacheFactory, AcUtils, jwtHelper, auth) {
@@ -99,7 +116,7 @@
          * @returns {*}
          */
         function getDeudores(callback) {
-            return $http.post(url, {function: 'getDeudores'})
+            return $http.post(url, {'function': 'getDeudores'})
                 .success(function (data) {
                     callback(data);
                 })
@@ -130,7 +147,7 @@
          */
         function remove(usuario_id, callback) {
             return $http.post(url,
-                {function: 'remove', 'usuario_id': usuario_id})
+                {'function': 'remove', 'usuario_id': usuario_id})
                 .success(function (data) {
                     //console.log(data);
                     if (data !== 'false') {
@@ -447,7 +464,7 @@
         function changePassword(usuario_id, pass_old, pass_new, callback) {
             return $http.post(url,
                 {
-                    function: 'changePassword',
+                    'function': 'changePassword',
                     usuario_id: usuario_id,
                     pass_old: pass_old,
                     pass_new: pass_new
