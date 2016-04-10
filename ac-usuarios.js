@@ -32,10 +32,9 @@
         })
         .factory('UserService', UserService)
         .service('UserVars', UserVars)
-        .component('UserControl', UserControl)
     ;
 
-    function UserControl(){
+    function UserControl() {
         return {
             templateUrl: 'ac-angular-usuarios.html',
             controller: UserController,
@@ -48,12 +47,12 @@
     }
 
     UserController.$inject = [];
-    function UserController(){
+    function UserController() {
 
     }
 
-    UserService.$inject = ['$http', '$cookieStore', 'store', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth'];
-    function UserService($http, $cookieStore, store, UserVars, $cacheFactory, AcUtils, jwtHelper, auth) {
+    UserService.$inject = ['$http', 'store', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth', '$q'];
+    function UserService($http, store, UserVars, $cacheFactory, AcUtils, jwtHelper, auth, $q) {
         //Variables
         var service = {};
 
@@ -164,7 +163,7 @@
          * @param callback
          * @description: Retorna todos los usuario de la base.
          */
-        function get(callback) {
+        function get() {
             var urlGet = url + '?function=get';
             var $httpDefaultCache = $cacheFactory.get('$http');
             var cachedData = [];
@@ -177,23 +176,22 @@
                 else {
                     //console.log('lo');
                     cachedData = $httpDefaultCache.get(urlGet);
-                    callback(cachedData);
-                    return;
+
+                    return (cachedData.data);
                 }
             }
 
-
             return $http.get(urlGet, {cache: true})
-                .success(function (data) {
-                    $httpDefaultCache.put(urlGet, data);
+                .then(function (response) {
+                    $httpDefaultCache.put(urlGet, response.data);
                     UserVars.clearCache = false;
-                    UserVars.paginas = (data.length % UserVars.paginacion == 0) ? parseInt(data.length / UserVars.paginacion) : parseInt(data.length / UserVars.paginacion) + 1;
-                    callback(data);
+                    UserVars.paginas = (response.data.length % UserVars.paginacion == 0) ? parseInt(response.data.length / UserVars.paginacion) : parseInt(response.data.length / UserVars.paginacion) + 1;
+                    return response.data;
                 })
-                .error(function (data) {
-                    callback(data);
-                    UserVars.clearCache = false;
-                })
+                .catch(function (response){
+                    console.log(response);
+                });
+
         }
 
         /** @name: getById
@@ -238,7 +236,7 @@
          */
         function logout(callback) {
             store.remove(window.appName);
-            $cookieStore.remove(window.appName);
+
             UserVars.clearCache = true;
             if (callback != undefined) {
                 callback();
@@ -260,7 +258,6 @@
                 {'function': 'login', 'mail': mail, 'password': password, 'sucursal_id': sucursal_id})
                 .success(function (data) {
                     if (data != -1) {
-                        $cookieStore.put(window.appName, data.user);
                         store.set(window.appName, data.token);
                     }
                     callback(data);
@@ -279,7 +276,6 @@
             $http.post(url, {'function': 'loginSocial', 'token': token, 'user': JSON.stringify(user)})
                 .success(function (data) {
                     if (data != -1) {
-                        $cookieStore.put(window.appName, data.user);
                         store.set(window.appName, data.token);
                     }
                     callback_social(data);
@@ -343,7 +339,6 @@
                     $http.post(url, {'function': 'loginSocial', 'token': token, 'user': JSON.stringify(user)})
                         .success(function (data) {
                             if (data != -1) {
-                                $cookieStore.put(window.appName, data.user);
                                 store.set(window.appName, data.token);
                             }
                             callback_social(data);
@@ -422,13 +417,13 @@
          * @description: Retorna si existe una cookie de usuario.
          */
         function getLogged() {
-            var globals = $cookieStore.get(window.appName);
-
-            if (globals !== undefined) {
-                return globals;
-            } else {
-                return false;
-            }
+            //var globals = $cookieStore.get(window.appName);
+            //
+            //if (globals !== undefined) {
+            //    return globals;
+            //} else {
+            //    return false;
+            //}
         }
 
 
@@ -450,7 +445,7 @@
          * @description: Setea al usuario en una cookie. No est� agregado al login ya que no en todos los casos se necesita cookie.
          */
         function setLogged(user) {
-            $cookieStore.put(window.appName, user);
+            //$cookieStore.put(window.appName, user);
         }
 
         /**
@@ -495,6 +490,7 @@
                     callback(data);
                 })
                 .error(function (data) {
+                    console.log(data);
                     callback(data);
                 });
         }

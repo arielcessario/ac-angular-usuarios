@@ -585,6 +585,8 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
 
         return $usuario;
     }
+
+
 }
 
 
