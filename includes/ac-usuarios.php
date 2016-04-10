@@ -21,7 +21,18 @@ class Usuarios extends Main
     public static function init($decoded)
     {
         self::$instance = new Main(get_class(), $decoded['function']);
-        call_user_func(get_class() . '::' . $decoded['function'], $decoded);
+        try {
+            call_user_func(get_class() . '::' . $decoded['function'], $decoded);
+        } catch (Exception $e) {
+
+            $file = 'error.log';
+            $current = file_get_contents($file);
+            $current .= date('Y-m-d H:i:s') .": " . $e . "\n";
+            file_put_contents($file, $current);
+
+            header('HTTP/1.0 500 Internal Server Error');
+            echo $e;
+        }
     }
 
 
@@ -32,7 +43,6 @@ class Usuarios extends Main
     function getDeudores()
     {
 
-        validateRol(0);
 
         $db = new MysqliDb();
         $deudores = array();
@@ -97,7 +107,7 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
 
             $mail->From = 'ventas@ac-desarrollos.com';
             $mail->FromName = 'UIGLP';
-            $mail->addAddress($email);     // Add a recipient
+            $mail->addAddress($params["email"]);     // Add a recipient
             $mail->addAddress('arielcessario@gmail.com');     // Add a recipient
             $mail->addAddress('juan.dilello@gmail.com');               // Name is optional
             $mail->addAddress('diegoyankelevich@gmail.com');
@@ -202,7 +212,6 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
      */
     function remove($params)
     {
-        validateRol(0);
 
         $db = new MysqliDb();
 
@@ -228,14 +237,11 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
      */
     function get()
     {
-
-        validateRol(0);
-
-        $db = new MysqliDb();
+        $db = self::$instance->db;
         $results = $db->get('usuarios');
 
         foreach ($results as $key => $row) {
-            $db->where('usuario_id', $row['usuario_id']);
+            $db->where('usuario_id1', $row['usuario_id']);
             $results[$key]["password"] = '';
             $direcciones = $db->get('direcciones');
             $results[$key]['direcciones'] = $direcciones;
@@ -262,7 +268,7 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
 
         if ($db->count > 0) {
 
-            if($results[0]['social_login'] !== 0){
+            if ($results[0]['social_login'] !== 0) {
                 echo json_encode(-1);
                 exit;
             }
@@ -325,7 +331,6 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
             echo "Invalid token";
             exit();
         }
-
 
 
     }
@@ -585,8 +590,6 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
 
         return $usuario;
     }
-
-
 }
 
 
