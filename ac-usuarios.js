@@ -51,8 +51,8 @@
 
     }
 
-    UserService.$inject = ['$http', 'store', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth', '$q'];
-    function UserService($http, store, UserVars, $cacheFactory, AcUtils, jwtHelper, auth, $q) {
+    UserService.$inject = ['$http', 'store', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth', 'ErrorHandler', '$q'];
+    function UserService($http, store, UserVars, $cacheFactory, AcUtils, jwtHelper, auth, ErrorHandler, $q) {
         //Variables
         var service = {};
 
@@ -174,12 +174,13 @@
                     $httpDefaultCache.remove(urlGet);
                 }
                 else {
-                    //console.log('lo');
                     cachedData = $httpDefaultCache.get(urlGet);
-
-                    return (cachedData.data);
+                    var deferred = $q.defer();
+                    deferred.resolve(cachedData);
+                    return deferred.promise;
                 }
             }
+
 
             return $http.get(urlGet, {cache: true})
                 .then(function (response) {
@@ -189,7 +190,7 @@
                     return response.data;
                 })
                 .catch(function (response){
-                    console.log(response);
+                    ErrorHandler(response);
                 });
 
         }
