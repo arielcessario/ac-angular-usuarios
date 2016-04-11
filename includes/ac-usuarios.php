@@ -241,7 +241,7 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
         $results = $db->get('usuarios');
 
         foreach ($results as $key => $row) {
-            $db->where('usuario_id1', $row['usuario_id']);
+            $db->where('usuario_id', $row['usuario_id']);
             $results[$key]["password"] = '';
             $direcciones = $db->get('direcciones');
             $results[$key]['direcciones'] = $direcciones;
