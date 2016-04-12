@@ -18,14 +18,6 @@
 
             $httpProvider.interceptors.push('jwtInterceptor');
         })
-        //.config(['$routeProvider', 'jwtInterceptorProvider', '$httpProvider',
-        //    function ($routeProvider, jwtInterceptorProvider, $httpProvider) {
-        //
-        //        jwtInterceptorProvider.tokenGetter = function (store) {
-        //            return store.get(window.app);
-        //        };
-        //        $httpProvider.interceptors.push('jwtInterceptor');
-        //    }])
         .run(function ($rootScope, jwtHelper, $location, UserVars) {
             // Para activar la seguridad en una vista, agregar data:{requiresLogin:false} dentro de $routeProvider.when
 
