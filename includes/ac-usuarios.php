@@ -2,6 +2,7 @@
 session_start();
 
 require 'PHPMailerAutoload.php';
+require 'jwt_helper.php';
 
 // Token
 $decoded_token = null;
@@ -258,7 +259,7 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
      */
     function login($params)
     {
-        $db = new MysqliDb();
+        $db = self::$instance->db;
         $db->where("mail", $params["mail"]);
 
         $db->join("direcciones d", "d.usuario_id=u.usuario_id", "LEFT");
@@ -281,19 +282,21 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
                 if ($jwt_enabled) {
                     echo json_encode(
                         array(
-                            'token' => createToken($results[0]),
+                            'token' => self::createToken($results[0]),
                             'user' => $results[0])
                     );
                 } else {
                     echo json_encode(array('token' => '', 'user' => $results[0]));
                 }
-                addLogin($results[0]['usuario_id'], $params["sucursal_id"], 1);
+                self::addLogin($results[0]['usuario_id'], $params["sucursal_id"], $params["caja_id"], 1);
             } else {
-                addLogin($results[0]['usuario_id'], $params["sucursal_id"], 0);
-                echo json_encode(-1);
+                self::addLogin($results[0]['usuario_id'], $params["sucursal_id"], $params["caja_id"], 0);
+                header('HTTP/1.0 400 Internal Server Error');
+                echo "Password incorrecto";
             }
         } else {
-            echo json_encode(-1);
+            header('HTTP/1.0 400 Internal Server Error');
+            echo "No existe el usuario.";
         }
     }
 
@@ -547,7 +550,7 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
      */
     function addLogin($usuario_id, $sucursal_id, $ok)
     {
-        $db = new MysqliDb();
+        $db = self::$instance->db;
         $data = array('usuario_id' => $usuario_id,
             'sucursal_id' => $sucursal_id,
             'ok' => $ok);

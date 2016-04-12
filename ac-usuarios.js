@@ -32,24 +32,80 @@
         })
         .factory('UserService', UserService)
         .service('UserVars', UserVars)
+        .component('usuarioLogin', usuarioLogin())
+        .component('usuarioLogout', usuarioLogout())
     ;
 
-    function UserControl() {
+    function usuarioLogin() {
         return {
-            templateUrl: 'ac-angular-usuarios.html',
-            controller: UserController,
             bindings: {
-                hero: '<',
-                onDelete: '&',
-                onUpdate: '&'
-            }
+                'sucursales':'=',
+                'cajas':'='
+            },
+            templateUrl: window.installPath + '/ac-angular-usuarios/ac-usuarios-login.html',
+            controller: AcLoginController
         }
     }
 
-    UserController.$inject = [];
-    function UserController() {
+    AcLoginController.$inject = ["$element", "$scope", "UserService", "$timeout", "AcUtils"];
+    /**
+     * @param $scope
+     * @constructor
+     */
+    function AcLoginController($element, $scope, UserService, $timeout, AcUtils) {
+        var vm = this;
+        vm.email = '';
+        vm.password = '';
+        vm.sucursal = {sucursal_id: -1};
+        vm.caja = {caja_id: -1};
+
+        vm.login = login;
+        vm.logout = logout;
+        vm.loginFacebook = loginFacebook;
+        vm.loginGoogle = loginGoogle;
+
+        function login() {
+            UserService.login(vm.email, vm.password, vm.sucursal.sucursal_id, vm.caja.caja_id).then(function (data) {
+                console.log(data);
+            })
+        }
+
+        function loginFacebook() {
+
+        }
+
+        function loginGoogle() {
+
+        }
+
+        function logout(){
+            UserService.logout().then(function(data){
+                console.log(data);
+            })
+        }
 
     }
+
+    function usuarioLogout() {
+        return {
+            bindings: {
+                searchFunction: '&'
+            },
+            templateUrl: window.installPath + '/ac-angular-usuarios/ac-usuarios-login.html',
+            controller: AcLogoutController
+        }
+    }
+
+    AcLogoutController.$inject = ["$element", "$scope", "$compile", "$timeout", "AcUtils"];
+    /**
+     * @param $scope
+     * @constructor
+     */
+    function AcLogoutController($element, $scope, $compile, $timeout, AcUtils) {
+        var vm = this;
+
+    }
+
 
     UserService.$inject = ['$http', 'store', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth', 'ErrorHandler', '$q'];
     function UserService($http, store, UserVars, $cacheFactory, AcUtils, jwtHelper, auth, ErrorHandler, $q) {
@@ -174,8 +230,8 @@
                     $httpDefaultCache.remove(urlGet);
                 }
                 else {
-                    cachedData = $httpDefaultCache.get(urlGet);
                     var deferred = $q.defer();
+                    cachedData = $httpDefaultCache.get(urlGet);
                     deferred.resolve(cachedData);
                     return deferred.promise;
                 }
@@ -189,7 +245,7 @@
                     UserVars.paginas = (response.data.length % UserVars.paginacion == 0) ? parseInt(response.data.length / UserVars.paginacion) : parseInt(response.data.length / UserVars.paginacion) + 1;
                     return response.data;
                 })
-                .catch(function (response){
+                .catch(function (response) {
                     ErrorHandler(response);
                 });
 
@@ -233,15 +289,10 @@
 
         /**
          * Realiza logout
-         * @param callback
          */
-        function logout(callback) {
-            store.remove(window.appName);
-
+        function logout() {
+            store.remove(window.app);
             UserVars.clearCache = true;
-            if (callback != undefined) {
-                callback();
-            }
         }
 
 
@@ -251,20 +302,26 @@
          * @param mail
          * @param password
          * @param sucursal_id
-         * @param callback
+         * @param caja_id
          * @returns {*}
          */
-        function login(mail, password, sucursal_id, callback) {
+        function login(mail, password, sucursal_id, caja_id) {
+
             return $http.post(url,
-                {'function': 'login', 'mail': mail, 'password': password, 'sucursal_id': sucursal_id})
-                .success(function (data) {
-                    if (data != -1) {
-                        store.set(window.appName, data.token);
-                    }
-                    callback(data);
+                {
+                    'function': 'login',
+                    'mail': mail,
+                    'password': password,
+                    'sucursal_id': sucursal_id,
+                    'caja_id': caja_id
                 })
-                .error(function (data) {
-                    callback(data);
+                .then(function (response) {
+                    console.log(response.data);
+                    store.set(window.app, response.data.token);
+                    return response.data;
+                })
+                .catch(function (response) {
+                    ErrorHandler(response);
                 })
         }
 
@@ -289,7 +346,7 @@
 
 
         /**
-         * @description function intermedia para poder seguir utilizando el callback del llamador en
+         * @description function intermedia para poder seguir utilizando el callback del llamador en loginSocial
          * @param data
          */
         var callback_social = function (data) {
