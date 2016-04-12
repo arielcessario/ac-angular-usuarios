@@ -9,21 +9,30 @@
     }
 
     angular.module('acUsuarios', [])
-        .config(['$routeProvider', 'jwtInterceptorProvider', '$httpProvider',
-            function ($routeProvider, jwtInterceptorProvider, $httpProvider) {
+        .config(function Config($httpProvider, jwtInterceptorProvider) {
+            // Please note we're annotating the function so that the $injector works when the file is minified
+            jwtInterceptorProvider.tokenGetter = [function() {
+                console.log('entra');
+                return localStorage.getItem(window.app);
+            }];
 
-                jwtInterceptorProvider.tokenGetter = function (store) {
-                    return store.get(window.appName);
-                };
-                $httpProvider.interceptors.push('jwtInterceptor');
-            }])
-        .run(function ($rootScope, store, jwtHelper, $location, UserVars) {
+            $httpProvider.interceptors.push('jwtInterceptor');
+        })
+        //.config(['$routeProvider', 'jwtInterceptorProvider', '$httpProvider',
+        //    function ($routeProvider, jwtInterceptorProvider, $httpProvider) {
+        //
+        //        jwtInterceptorProvider.tokenGetter = function (store) {
+        //            return store.get(window.app);
+        //        };
+        //        $httpProvider.interceptors.push('jwtInterceptor');
+        //    }])
+        .run(function ($rootScope, jwtHelper, $location, UserVars) {
             // Para activar la seguridad en una vista, agregar data:{requiresLogin:false} dentro de $routeProvider.when
 
 
             $rootScope.$on('$routeChangeStart', function (e, to) {
                 if (to && to.data && to.data.requiresLogin) {
-                    if (!store.get(window.appName)) {
+                    if (!localStorage.getItem(window.app)) {
                         e.preventDefault();
                         $location.path(UserVars.loginPath);
                     }
@@ -39,34 +48,36 @@
     function usuarioLogin() {
         return {
             bindings: {
-                'sucursales':'=',
-                'cajas':'='
+                'sucursales': '=',
+                'cajas': '=',
+                'redirect': '='
             },
             templateUrl: window.installPath + '/ac-angular-usuarios/ac-usuarios-login.html',
             controller: AcLoginController
         }
     }
 
-    AcLoginController.$inject = ["$element", "$scope", "UserService", "$timeout", "AcUtils"];
+    AcLoginController.$inject = ["UserService", '$location'];
     /**
-     * @param $scope
+     * @param UserService
+     * @param $location
      * @constructor
      */
-    function AcLoginController($element, $scope, UserService, $timeout, AcUtils) {
+    function AcLoginController(UserService, $location) {
         var vm = this;
         vm.email = '';
         vm.password = '';
         vm.sucursal = {sucursal_id: -1};
         vm.caja = {caja_id: -1};
+        vm.dir = (vm.redirect == undefined) ? '/' : vm.redirect;
 
         vm.login = login;
-        vm.logout = logout;
         vm.loginFacebook = loginFacebook;
         vm.loginGoogle = loginGoogle;
 
         function login() {
             UserService.login(vm.email, vm.password, vm.sucursal.sucursal_id, vm.caja.caja_id).then(function (data) {
-                console.log(data);
+                $location.path(vm.dir);
             })
         }
 
@@ -75,40 +86,45 @@
         }
 
         function loginGoogle() {
-
-        }
-
-        function logout(){
-            UserService.logout().then(function(data){
-                console.log(data);
+            UserService.loginGoogle(function (data) {
+                $location.path(vm.dir);
             })
         }
+
 
     }
 
     function usuarioLogout() {
         return {
             bindings: {
-                searchFunction: '&'
+                'redirect': '='
             },
-            templateUrl: window.installPath + '/ac-angular-usuarios/ac-usuarios-login.html',
+            template: '<button class="ac-usuarios-logout" ng-click="$ctrl.logout()">{{"LOGOUT"|xlat}}</button>',
             controller: AcLogoutController
         }
     }
 
-    AcLogoutController.$inject = ["$element", "$scope", "$compile", "$timeout", "AcUtils"];
+    AcLogoutController.$inject = ["UserService", '$location'];
     /**
      * @param $scope
      * @constructor
      */
-    function AcLogoutController($element, $scope, $compile, $timeout, AcUtils) {
+    function AcLogoutController(UserService, $location) {
         var vm = this;
+        vm.dir = (vm.redirect == undefined) ? '/' : vm.redirect;
+        vm.logout = logout;
 
+        function logout() {
+            UserService.logout(function () {
+                $location.path(vm.dir);
+            });
+
+        }
     }
 
 
-    UserService.$inject = ['$http', 'store', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth', 'ErrorHandler', '$q'];
-    function UserService($http, store, UserVars, $cacheFactory, AcUtils, jwtHelper, auth, ErrorHandler, $q) {
+    UserService.$inject = ['$http', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth', 'ErrorHandler', '$q'];
+    function UserService($http, UserVars, $cacheFactory, AcUtils, jwtHelper, auth, ErrorHandler, $q) {
         //Variables
         var service = {};
 
@@ -290,9 +306,10 @@
         /**
          * Realiza logout
          */
-        function logout() {
-            store.remove(window.app);
+        function logout(callback) {
+            localStorage.removeItem(window.app);
             UserVars.clearCache = true;
+            callback();
         }
 
 
@@ -317,7 +334,7 @@
                 })
                 .then(function (response) {
                     console.log(response.data);
-                    store.set(window.app, response.data.token);
+                    localStorage.setItem(window.app, response.data.token);
                     return response.data;
                 })
                 .catch(function (response) {
@@ -334,7 +351,7 @@
             $http.post(url, {'function': 'loginSocial', 'token': token, 'user': JSON.stringify(user)})
                 .success(function (data) {
                     if (data != -1) {
-                        store.set(window.appName, data.token);
+                        localStorage.setItem(window.appName, data.token);
                     }
                     callback_social(data);
                 })
@@ -397,7 +414,7 @@
                     $http.post(url, {'function': 'loginSocial', 'token': token, 'user': JSON.stringify(user)})
                         .success(function (data) {
                             if (data != -1) {
-                                store.set(window.appName, data.token);
+                                localStorage.setItem(window.app, data.token);
                             }
                             callback_social(data);
                         })
@@ -489,7 +506,7 @@
          * @description: Retorna si existe un token de usuario.
          */
         function getFromToken() {
-            var globals = store.get(window.appName);
+            var globals = localStorage.getItem(window.app);
 
             if (globals !== undefined && globals !== null) {
                 return jwtHelper.decodeToken(globals);
