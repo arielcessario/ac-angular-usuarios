@@ -265,6 +265,11 @@
 
             return $http.get(urlGet, {cache: true})
                 .then(function (response) {
+
+                    for (var i = 0; i < response.data.length; i++) {
+                        response.data[i].tipo_doc = '' + response.data[i].tipo_doc;
+                    }
+
                     $httpDefaultCache.put(urlGet, response.data);
                     UserVars.clearCache = false;
                     UserVars.paginas = (response.data.length % UserVars.paginacion == 0) ? parseInt(response.data.length / UserVars.paginacion) : parseInt(response.data.length / UserVars.paginacion) + 1;
