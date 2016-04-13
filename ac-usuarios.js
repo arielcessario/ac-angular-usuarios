@@ -10,9 +10,7 @@
 
     angular.module('acUsuarios', [])
         .config(function Config($httpProvider, jwtInterceptorProvider) {
-            // Please note we're annotating the function so that the $injector works when the file is minified
-            jwtInterceptorProvider.tokenGetter = [function() {
-                console.log('entra');
+            jwtInterceptorProvider.tokenGetter = [function () {
                 return localStorage.getItem(window.app);
             }];
 
@@ -74,7 +72,9 @@
         }
 
         function loginFacebook() {
-
+            UserService.loginFacebook(function (data) {
+                $location.path(vm.dir);
+            })
         }
 
         function loginGoogle() {
@@ -96,27 +96,27 @@
         }
     }
 
-    AcLogoutController.$inject = ["UserService", '$location'];
+    AcLogoutController.$inject = ["UserService"];
     /**
      * @param $scope
      * @constructor
      */
-    function AcLogoutController(UserService, $location) {
+    function AcLogoutController(UserService) {
         var vm = this;
-        vm.dir = (vm.redirect == undefined) ? '/' : vm.redirect;
+        vm.dir = (vm.redirect == undefined) ? '/logout' : vm.redirect;
         vm.logout = logout;
 
         function logout() {
-            UserService.logout(function () {
-                $location.path(vm.dir);
+            UserService.logout(vm.dir).then(function (data) {
+                console.log(data);
             });
-
         }
+
     }
 
 
-    UserService.$inject = ['$http', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth', 'ErrorHandler', '$q'];
-    function UserService($http, UserVars, $cacheFactory, AcUtils, jwtHelper, auth, ErrorHandler, $q) {
+    UserService.$inject = ['$http', 'UserVars', '$cacheFactory', 'AcUtils', 'jwtHelper', 'auth', 'ErrorHandler', '$q', '$location', 'AcUtilsGlobals'];
+    function UserService($http, UserVars, $cacheFactory, AcUtils, jwtHelper, auth, ErrorHandler, $q, $location, AcUtilsGlobals) {
         //Variables
         var service = {};
 
@@ -228,6 +228,7 @@
          * @description: Retorna todos los usuario de la base.
          */
         function get() {
+            AcUtilsGlobals.startWaiting();
             var urlGet = url + '?function=get';
             var $httpDefaultCache = $cacheFactory.get('$http');
             var cachedData = [];
@@ -251,9 +252,11 @@
                     $httpDefaultCache.put(urlGet, response.data);
                     UserVars.clearCache = false;
                     UserVars.paginas = (response.data.length % UserVars.paginacion == 0) ? parseInt(response.data.length / UserVars.paginacion) : parseInt(response.data.length / UserVars.paginacion) + 1;
+                    AcUtilsGlobals.stopWaiting();
                     return response.data;
                 })
                 .catch(function (response) {
+                    AcUtilsGlobals.stopWaiting();
                     ErrorHandler(response);
                 });
 
@@ -298,10 +301,20 @@
         /**
          * Realiza logout
          */
-        function logout(callback) {
-            localStorage.removeItem(window.app);
-            UserVars.clearCache = true;
-            callback();
+        function logout(path) {
+            return $http.post(url,
+                {
+                    'function': 'logout'
+                })
+                .then(function (response) {
+                    localStorage.removeItem(window.app);
+                    UserVars.clearCache = true;
+                    $location.path(path);
+                    return response.data;
+                })
+                .catch(function (response) {
+                    ErrorHandler(response);
+                })
         }
 
 
@@ -614,14 +627,15 @@
             };
          */
         function goToPagina(pagina) {
+
             if (isNaN(pagina) || pagina < 1) {
                 UserVars.pagina = 1;
-                return UserVars;
+                pagina = 1;
             }
 
             if (pagina > UserVars.paginas) {
                 UserVars.pagina = UserVars.paginas;
-                return UserVars;
+                pagina = UserVars.paginas;
             }
 
             UserVars.pagina = pagina - 1;

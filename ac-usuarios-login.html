@@ -1,0 +1,20 @@
+<form form-id="ac-usuarios-login">
+    <input type="text" id="ac-usuarios-login-email" ng-model="$ctrl.email" ac-validator
+           is-required="{{'ERROR_REQUIRED' | xlat:{campo:('NAME'|xlat)} }}">
+    <input type="password" id="ac-usuarios-login-password" ng-model="$ctrl.password" ac-validator
+           is-required="{{'ERROR_REQUIRED' | xlat:{campo:('NAME'|xlat)} }}">
+    <select ng-if="$ctrl.sucursales != undefined" name="" id="sucursales" ng-model="$ctrl.sucursal" ng-options="opt.sucursal_id for opt in $ctrl.sucursales"></select>
+    <select ng-if="$ctrl.cajas != undefined" name="" id="cajas" ng-model="$ctrl.caja" ng-options="opt.caja_id for opt in $ctrl.cajas"></select>
+    <div class="buttons">
+        <button ac-validator ng-click="$ctrl.login()">{{'LOGIN' | xlat}}</button>
+    </div>
+    <div class="social">
+        <span>o</span>
+        <button id="facebook" ng-click="$ctrl.loginFacebook()"></button>
+        <button id="google" ng-click="$ctrl.loginGoogle()"></button>
+    </div>
+    <div class="social">
+        <span>o</span>
+        <a ng-href="$ctrl.registrarse">{{'REGISTER' | xlat}}</a>
+    </div>
+</form>

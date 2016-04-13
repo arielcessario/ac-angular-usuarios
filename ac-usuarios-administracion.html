@@ -1,0 +1,98 @@
+<div id="lista">
+    <input type="text" class="buscador">
+    <table>
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="row in $ctrl.usuarios | filter:$ctrl.filtro | limitTo:$ctrl.end:$ctrl.start"
+            ng-click="$ctrl.usuario=row">
+            <td class="">{{row.nombre}}</td>
+            <td class="">{{row.apellido}}</td>
+            <td class="">{{row.mail}}</td>
+            <td class="">{{row.telefono}}</td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4">
+                <button class="btn-paginacion-first"
+                        ng-click="$ctrl.first();">Primera
+                </button>
+                <button class="btn-paginacion-prev"
+                        ng-click="$ctrl.prev();">Ant.
+                </button>
+                <div class="paginacion-paginas">
+                    <span>{{'PAGE' | xlat}} {{$ctrl.pagina}} {{'OF' | xlat}} {{$ctrl.paginas}}</span>
+                </div>
+                <div class="paginacion-go-to">{{'GO_TO' | xlat}} <input type="number"
+                                                          ng-model="$ctrl.pagina"
+                                                          ng-keyup="$ctrl.goToPagina();">
+                </div>
+
+                <button class="btn-paginacion-next"
+                        ng-click="$ctrl.next();">Sig.
+                </button>
+                <button class="btn-paginacion-last"
+                        ng-click="$ctrl.last();">Última
+                </button>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+<div id="detalle">
+    <form class="form" form-id="usuario-details">
+        <div class="input">
+            <input id="nombre" type="text" ng-model="$ctrl.usuario.nombre" ac-validator
+                   is-required="{{'ERROR_REQUIRED' | xlat:{campo:('NAME'|xlat)} }}"/>
+            <span>Texto de etiqueta</span>
+        </div>
+        <div class="input">
+            <input id="apellido" type="text" ng-model="$ctrl.usuario.apellido" ac-validator
+                   is-required="{{'ERROR_REQUIRED' | xlat:{campo:('LAST_NAME'|xlat)} }}"/>
+            <span>Texto de etiqueta</span>
+        </div>
+        <div class="input">
+            <input id="email" type="email" ng-model="$ctrl.usuario.mail" ac-validator [val-value]=""/>
+            <span>Texto de etiqueta</span>
+        </div>
+        <div class="input">
+            <input id="telefono" type="text" ng-model="$ctrl.usuario.telefono" ac-validator [val-value]=""/>
+            <span>Texto de etiqueta</span>
+        </div>
+        <div class="input">
+            <input id="direccion" type="text" ng-model="$ctrl.usuario.direcciones[0].calle" ac-validator
+                   [val-value]=""/>
+            <span>Texto de etiqueta</span>
+        </div>
+        <div class="input">
+            <select id="tipo_doc" ac-validator ng-model="$ctrl.usuario.tipo_doc"
+                    is-required="{{'ERROR_REQUIRED' | xlat:{campo:('TIPO_DOC'|xlat)} }}">
+                <option value="0" selected>DNI</option>
+                <option value="1">CUIT</option>
+                <option value="2">PASS</option>
+                <option value="3">CI</option>
+                <option value="4">Otro</option>
+            </select>
+            <span>Texto de etiqueta</span>
+        </div>
+        <div class="input">
+            <input id="nro_doc" type="text" ng-model="$ctrl.usuario.nro_doc" ac-validator [val-value]=""/>
+            <span>{{'NRO_DOC' | xlat}}</span>
+        </div>
+        <div class="input">
+            <input id="activo" type="text/date/number/email" ac-validator [val-value]=""/>
+            <span>Texto de etiqueta</span>
+        </div>
+    </form>
+
+</div>
+<div id="botonera">
+
+</div>
