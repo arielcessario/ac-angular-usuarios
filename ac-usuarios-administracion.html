@@ -10,7 +10,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="row in $ctrl.usuarios | filter:$ctrl.filtro | limitTo:$ctrl.end:$ctrl.start"
+        <tr ng-repeat="row in $ctrl.usuarios | filter:$ctrl.filtro | limitTo:$ctrl.limit:$ctrl.start"
             ng-click="$ctrl.usuario=row">
             <td class="">{{row.nombre}}</td>
             <td class="">{{row.apellido}}</td>
@@ -31,8 +31,8 @@
                     <span>{{'PAGE' | xlat}} {{$ctrl.pagina}} {{'OF' | xlat}} {{$ctrl.paginas}}</span>
                 </div>
                 <div class="paginacion-go-to">{{'GO_TO' | xlat}} <input type="number"
-                                                          ng-model="$ctrl.pagina"
-                                                          ng-keyup="$ctrl.goToPagina();">
+                                                                        ng-model="$ctrl.pagina"
+                                                                        ng-keyup="$ctrl.goToPagina();">
                 </div>
 
                 <button class="btn-paginacion-next"

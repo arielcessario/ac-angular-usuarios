@@ -14,12 +14,12 @@
         }
     }
 
-    AcUsuariosController.$inject = ["UserService", "UserVars", "$timeout"];
+    AcUsuariosController.$inject = ["UserVars", 'UserService', "AcUtils"];
     /**
      * @param AcUsuarios
      * @constructor
      */
-    function AcUsuariosController(UserService, UserVars, $timeout) {
+    function AcUsuariosController(UserVars, UserService, AcUtils) {
         var vm = this;
 
         vm.usuarios = [];
@@ -27,42 +27,39 @@
 
 
         UserService.get().then(function (data) {
+
+
             vm.usuarios = data;
             vm.paginas = UserVars.paginas;
         });
 
         // Implementación de la paginación
         vm.start = 0;
-        vm.end = UserVars.paginacion;
+        vm.limit = UserVars.paginacion;
         vm.pagina = UserVars.pagina;
         vm.paginas = UserVars.paginas;
+        function paginar(vars) {
+            vm.start = vars.start;
+            vm.pagina = vars.pagina;
+        }
 
         vm.next = function () {
-            vm.start = UserService.next().start;
-            vm.pagina = UserVars.pagina;
+            paginar(AcUtils.next(UserVars));
         };
-
         vm.prev = function () {
-            vm.start = UserService.prev().start;
-            vm.pagina = (UserVars.pagina == 0) ? 1 : UserVars.pagina;
+            paginar(AcUtils.prev(UserVars));
+        };
+        vm.first = function () {
+            paginar(AcUtils.first(UserVars));
+        };
+        vm.last = function () {
+            paginar(AcUtils.last(UserVars));
         };
 
-        vm.goToPagina = function () {
-            if (vm.pagina != null) {
-                vm.start = UserService.goToPagina(vm.pagina).start;
-                vm.pagina = UserVars.pagina + 1;
-            }
-        };
+        vm.goToPagina = function (pagina) {
+            paginar(AcUtils.goToPagina(pagina, UserVars));
+        }
 
-        vm.first = function(){
-            vm.pagina = 1;
-            vm.goToPagina();
-        };
-
-        vm.last = function(){
-            vm.pagina = vm.paginas;
-            vm.goToPagina();
-        };
     }
 
 

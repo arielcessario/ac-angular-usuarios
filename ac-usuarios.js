@@ -151,9 +151,6 @@
         service.forgotPassword = forgotPassword;
         service.changePassword = changePassword;
 
-        service.goToPagina = goToPagina;
-        service.next = next;
-        service.prev = prev;
 
         return service;
 
@@ -594,95 +591,7 @@
                 });
         }
 
-        /**
-         * Para el uso de la p�ginaci�n, definir en el controlador las siguientes variables:
-         *
-         vm.start = 0;
-         vm.pagina = UserVars.pagina;
-         UserVars.paginacion = 5; Cantidad de registros por p�gina
-         vm.end = UserVars.paginacion;
 
-
-         En el HTML, en el ng-repeat agregar el siguiente filtro: limitTo:appCtrl.end:appCtrl.start;
-
-         Agregar un bot�n de next:
-         <button ng-click="appCtrl.next()">next</button>
-
-         Agregar un bot�n de prev:
-         <button ng-click="appCtrl.prev()">prev</button>
-
-         Agregar un input para la p�gina:
-         <input type="text" ng-keyup="appCtrl.goToPagina()" ng-model="appCtrl.pagina">
-
-         */
-
-
-        /**
-         * @description: Ir a p�gina
-         * @param pagina
-         * @returns {*}
-         * uso: agregar un m�todo
-         vm.goToPagina = function () {
-                vm.start= UserService.goToPagina(vm.pagina).start;
-            };
-         */
-        function goToPagina(pagina) {
-
-            if (isNaN(pagina) || pagina < 1) {
-                UserVars.pagina = 1;
-                pagina = 1;
-            }
-
-            if (pagina > UserVars.paginas) {
-                UserVars.pagina = UserVars.paginas;
-                pagina = UserVars.paginas;
-            }
-
-            UserVars.pagina = pagina - 1;
-            UserVars.start = UserVars.pagina * UserVars.paginacion;
-            return UserVars;
-        }
-
-        /**
-         * @name next
-         * @description Ir a pr�xima p�gina
-         * @returns {*}
-         * uso agregar un metodo
-         vm.next = function () {
-                vm.start = UserService.next().start;
-                vm.pagina = UserVars.pagina;
-            };
-         */
-        function next() {
-            if (UserVars.pagina + 1 > UserVars.paginas) {
-                return UserVars;
-            }
-            UserVars.start = (UserVars.pagina * UserVars.paginacion);
-            UserVars.pagina = UserVars.pagina + 1;
-            //UserVars.end = UserVars.start + UserVars.paginacion;
-            return UserVars;
-        }
-
-        /**
-         * @name previous
-         * @description Ir a p�gina anterior
-         * @returns {*}
-         * uso, agregar un m�todo
-         vm.prev = function () {
-                vm.start= UserService.prev().start;
-                vm.pagina = UserVars.pagina;
-            };
-         */
-        function prev() {
-            if (UserVars.pagina - 2 < 0) {
-                return UserVars;
-            }
-
-            //UserVars.end = UserVars.start;
-            UserVars.start = (UserVars.pagina - 2 ) * UserVars.paginacion;
-            UserVars.pagina = UserVars.pagina - 1;
-            return UserVars;
-        }
 
 
     }
