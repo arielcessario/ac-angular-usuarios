@@ -25,12 +25,30 @@
         vm.usuarios = [];
         vm.usuario = {};
 
+        vm.save = save;
+        vm.setData = setData;
 
-        UserService.get().then(function (data) {
 
+        function save() {
+            UserService.save(vm.usuario).then(function (data) {
+                return UserService.get();
+            }).then(function (data) {
+                setData(data);
+            });
 
+        }
+
+        function setData(data) {
+            for (var i = 0; i < data.length; i++) {
+                data[i].tipo_doc = '' + data[i].tipo_doc;
+            }
             vm.usuarios = data;
             vm.paginas = UserVars.paginas;
+        }
+
+
+        UserService.get().then(function (data) {
+            setData(data);
         });
 
         // Implementación de la paginación
@@ -38,7 +56,11 @@
         vm.limit = UserVars.paginacion;
         vm.pagina = UserVars.pagina;
         vm.paginas = UserVars.paginas;
+
         function paginar(vars) {
+            if (vars == {}) {
+                return;
+            }
             vm.start = vars.start;
             vm.pagina = vars.pagina;
         }
@@ -56,8 +78,8 @@
             paginar(AcUtils.last(UserVars));
         };
 
-        vm.goToPagina = function (pagina) {
-            paginar(AcUtils.goToPagina(pagina, UserVars));
+        vm.goToPagina = function () {
+            paginar(AcUtils.goToPagina(vm.pagina, UserVars));
         }
 
     }

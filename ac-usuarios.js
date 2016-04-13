@@ -135,6 +135,7 @@
 
 
         service.get = get;
+        service.save = save;
         service.getDeudores = getDeudores;
         service.getDeudorById = getDeudorById;
         service.getById = getById;
@@ -155,6 +156,24 @@
         return service;
 
         //Functions
+        /**
+         * Función que determina si es un update o un create
+         * @param usuario
+         * @returns {*}
+         */
+        function save(usuario) {
+
+            var deferred = $q.defer();
+
+            if (usuario.usuario_id != undefined) {
+                deferred.resolve(update(usuario));
+            } else {
+                deferred.resolve(create(usuario));
+            }
+            return deferred.promise;
+        }
+
+
         /**
          * @description Obtiene un deudor espec�fico
          * @param id
@@ -452,19 +471,19 @@
          * @param callback
          * @returns {*}
          */
-        function createFromSocial(usuario, callback) {
+        function createFromSocial(usuario) {
             return $http.post(url,
                 {
                     'function': 'create',
                     'user': JSON.stringify(usuario)
                 })
-                .success(function (data) {
+                .then(function (response) {
                     UserVars.clearCache = true;
-                    callback(data);
+                    return response.data;
                 })
-                .error(function (data) {
+                .error(function (response) {
                     UserVars.clearCache = true;
-                    callback(data);
+                    ErrorHandler(response.data);
                 });
         }
 
@@ -474,19 +493,19 @@
          * @param callback
          * @returns {*}
          */
-        function create(usuario, callback) {
+        function create(usuario) {
             return $http.post(url,
                 {
                     'function': 'create',
                     'user': JSON.stringify(usuario)
                 })
-                .success(function (data) {
+                .then(function (response) {
                     UserVars.clearCache = true;
-                    callback(data);
+                    return response.data;
                 })
-                .error(function (data) {
+                .catch(function (response) {
                     UserVars.clearCache = true;
-                    callback(data);
+                    ErrorHandler(response);
                 });
         }
 
@@ -553,22 +572,21 @@
 
         /** @name: update
          * @param usuario
-         * @param callback
          * @description: Realiza update al usuario.
          */
-        function update(usuario, callback) {
+        function update(usuario) {
             return $http.post(url,
                 {
                     'function': 'update',
                     'user': JSON.stringify(usuario)
                 })
-                .success(function (data) {
+                .then(function (response) {
                     UserVars.clearCache = true;
-                    callback(data);
+                    return response.data;
                 })
-                .error(function (data) {
-                    console.log(data);
-                    callback(data);
+                .catch(function (response) {
+                    UserVars.clearCache = true;
+                    ErrorHandler(response);
                 });
         }
 
@@ -590,8 +608,6 @@
                     callback(data);
                 });
         }
-
-
 
 
     }
