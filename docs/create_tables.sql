@@ -39,6 +39,7 @@ CREATE TABLE logins (
   login_id int(11) NOT NULL AUTO_INCREMENT,
   usuario_id int(11) DEFAULT NULL,
   sucursal_id varchar(45) NOT NULL,
+  caja_id varchar(45) NOT NULL,
   ok int(1) NOT NULL DEFAULT 0,  -- Login no ok == 0 / Login ok == 1
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (login_id)
