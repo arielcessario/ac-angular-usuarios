@@ -2,12 +2,12 @@
     <div class="detalle-container">
         <div class="input">
             <input type="text" id="ac-usuarios-login-email" ng-model="$ctrl.email" ac-validator
-                   is-required="{{'ERROR_REQUIRED' | xlat:{campo:('NAME'|xlat)} }}">
+                   is-required="{{'ERROR_REQUIRED' | xlat:{campo:('NAME'|xlat)} }}" autocomplete="off">
             <span>{{'EMAIL'|xlat}}</span>
         </div>
 
         <div class="input">
-            <input type="password" id="ac-usuarios-login-password" ng-model="$ctrl.password" ac-validator
+            <input type="password" id="ac-usuarios-login-password" ng-model="$ctrl.password" autocomplete="off" ac-validator
                    is-required="{{'ERROR_REQUIRED' | xlat:{campo:('NAME'|xlat)} }}">
             <span>{{'PASSWORD'|xlat}}</span>
         </div>
@@ -25,12 +25,12 @@
     <div class="botonera">
         <button ac-validator ng-click="$ctrl.login()">{{'LOGIN' | xlat}}</button>
     </div>
-    <div class="social">
+    <div class="social" ng-if="$ctrl.social">
         <span>o</span>
         <button id="facebook" ng-click="$ctrl.loginFacebook()"></button>
         <button id="google" ng-click="$ctrl.loginGoogle()"></button>
     </div>
-    <div class="register">
+    <div class="register" ng-if="$ctrl.register">
         <span>o</span>
         <a ng-href="$ctrl.registrarse">{{'REGISTER' | xlat}}</a>
     </div>

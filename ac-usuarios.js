@@ -40,7 +40,9 @@
             bindings: {
                 'sucursales': '=',
                 'cajas': '=',
-                'redirect': '='
+                'redirect': '=',
+                'social':'<',
+                'register':'<'
             },
             templateUrl: window.installPath + '/ac-angular-usuarios/ac-usuarios-login.html',
             controller: AcLoginController
@@ -359,11 +361,11 @@
                     'caja_id': caja_id
                 })
                 .then(function (response) {
-                    console.log(response.data);
                     localStorage.setItem(window.app, response.data.token);
                     return response.data;
                 })
                 .catch(function (response) {
+                    console.log(response);
                     ErrorHandler(response);
                 })
         }
@@ -377,7 +379,7 @@
             $http.post(url, {'function': 'loginSocial', 'token': token, 'user': JSON.stringify(user)})
                 .success(function (data) {
                     if (data != -1) {
-                        localStorage.setItem(window.appName, data.token);
+                        localStorage.setItem(window.app, data.token);
                     }
                     callback_social(data);
                 })
@@ -432,7 +434,6 @@
          */
         function onLoginSuccess(profile, token) {
             userExist(profile.email, function (data) {
-
                 if (data > 0) {
                     var user = {
                         mail: profile.email
