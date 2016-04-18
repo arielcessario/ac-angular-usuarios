@@ -39,9 +39,6 @@
         }
 
         function setData(data) {
-            for (var i = 0; i < data.length; i++) {
-                data[i].tipo_doc = '' + data[i].tipo_doc;
-            }
             vm.usuarios = data;
             vm.paginas = UserVars.paginas;
         }

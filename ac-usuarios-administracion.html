@@ -11,7 +11,7 @@
         </thead>
         <tbody>
         <tr ng-repeat="row in $ctrl.usuarios | filter:$ctrl.filtro | limitTo:$ctrl.limit:$ctrl.start"
-            ng-click="$ctrl.usuario=row">
+            ng-click="$ctrl.usuario=row;$ctrl.detailsOpen = true;">
             <td class="">{{row.nombre}}</td>
             <td class="">{{row.apellido}}</td>
             <td class="">{{row.mail}}</td>
@@ -45,8 +45,12 @@
         </tr>
         </tfoot>
     </table>
+    <div class="botonera">
+        <button ng-click="$ctrl.detailsOpen = true;">{{'NEW'|xlat}}</button>
+
+    </div>
 </div>
-<form class="form" form-id="usuario-details">
+<form class="form details" form-id="usuario-details" ng-class="{'details-open':$ctrl.detailsOpen}">
     <div class="detalle-container">
         <div class="input">
             <input id="nombre" type="text" ng-model="$ctrl.usuario.nombre" ac-validator
@@ -102,10 +106,10 @@
             <span>{{'PASSWORD'|xlat}}</span>
         </div>
     </div>
-    <div id="botonera">
-        <button ng-click="$ctrl.save()" ac-validator>{{'SAVE'|xlat}}</button>
+    <div class="botonera">
+        <button ng-click="$ctrl.save(); $ctrl.detailsOpen = false;" ac-validator>{{'SAVE'|xlat}}</button>
         <button ng-click="$ctrl.remove()">{{'DELETE'|xlat}}</button>
-        <button ng-click="$ctrl.usuario = {}">{{'CANCEL'|xlat}}</button>
+        <button ng-click="$ctrl.usuario = {}; $ctrl.detailsOpen = false;">{{'CANCEL'|xlat}}</button>
 
     </div>
 </form>
