@@ -102,18 +102,19 @@
         }
     }
 
-    AcLogoutController.$inject = ["UserService"];
+    AcLogoutController.$inject = ["UserService", '$rootScope'];
     /**
      * @param $scope
      * @constructor
      */
-    function AcLogoutController(UserService) {
+    function AcLogoutController(UserService, $rootScope) {
         var vm = this;
         vm.dir = (vm.redirect == undefined) ? '/logout' : vm.redirect;
         vm.logout = logout;
 
         function logout() {
             UserService.logout(vm.dir).then(function (data) {
+                $rootScope.$broadcast('login-error');
                 console.log(data);
             });
         }
