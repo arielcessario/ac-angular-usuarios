@@ -2,7 +2,7 @@
 session_start();
 
 require 'PHPMailerAutoload.php';
-require 'jwt_helper.php';
+//require 'jwt_helper.php';
 
 // Token
 $decoded_token = null;
