@@ -21,26 +21,28 @@
         <tfoot>
         <tr>
             <td colspan="4">
-                <button class="btn-paginacion-first"
-                        ng-click="$ctrl.first();">Primera
-                </button>
-                <button class="btn-paginacion-prev"
-                        ng-click="$ctrl.prev();">Ant.
-                </button>
-                <div class="paginacion-paginas">
-                    <span>{{'PAGE' | xlat}} {{$ctrl.pagina}} {{'OF' | xlat}} {{$ctrl.paginas}}</span>
-                </div>
-                <div class="paginacion-go-to">{{'GO_TO' | xlat}} <input type="number"
-                                                                        ng-model="$ctrl.pagina"
-                                                                        ng-keyup="$ctrl.goToPagina();">
-                </div>
+                <div class="table-td">
+                    <button class="btn-paginacion-first"
+                            ng-click="$ctrl.first();">Primera
+                    </button>
+                    <button class="btn-paginacion-prev"
+                            ng-click="$ctrl.prev();">Ant.
+                    </button>
+                    <div class="paginacion-paginas">
+                        <span>{{'PAGE' | xlat}} {{$ctrl.pagina}} {{'OF' | xlat}} {{$ctrl.paginas}}</span>
+                    </div>
+                    <div class="paginacion-go-to">{{'GO_TO' | xlat}} <input type="number"
+                                                                            ng-model="$ctrl.pagina"
+                                                                            ng-keyup="$ctrl.goToPagina();">
+                    </div>
 
-                <button class="btn-paginacion-next"
-                        ng-click="$ctrl.next();">Sig.
-                </button>
-                <button class="btn-paginacion-last"
-                        ng-click="$ctrl.last();">Última
-                </button>
+                    <button class="btn-paginacion-next"
+                            ng-click="$ctrl.next();">Sig.
+                    </button>
+                    <button class="btn-paginacion-last"
+                            ng-click="$ctrl.last();">Última
+                    </button>
+                </div>
             </td>
         </tr>
         </tfoot>
