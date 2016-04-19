@@ -41,8 +41,8 @@
                 'sucursales': '=',
                 'cajas': '=',
                 'redirect': '=',
-                'social':'<',
-                'register':'<'
+                'social': '<',
+                'register': '<'
             },
             templateUrl: window.installPath + '/ac-angular-usuarios/ac-usuarios-login.html',
             controller: AcLoginController
@@ -69,7 +69,9 @@
 
         function login() {
             UserService.login(vm.email, vm.password, vm.sucursal.sucursal_id, vm.caja.caja_id).then(function (data) {
-                $location.path(vm.dir);
+                if (data != undefined) {
+                    $location.path(vm.dir);
+                }
             })
         }
 
