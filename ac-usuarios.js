@@ -41,36 +41,38 @@
                 'sucursales': '=',
                 'cajas': '=',
                 'redirect': '=',
-                'social': '<',
-                'register': '<'
+                'social':'<',
+                'register':'<'
             },
             templateUrl: window.installPath + '/ac-angular-usuarios/ac-usuarios-login.html',
             controller: AcLoginController
         }
     }
 
-    AcLoginController.$inject = ["UserService", '$location'];
+    AcLoginController.$inject = ["UserService", '$location', '$rootScope'];
     /**
      * @param UserService
      * @param $location
      * @constructor
      */
-    function AcLoginController(UserService, $location) {
+    function AcLoginController(UserService, $location, $rootScope) {
         var vm = this;
         vm.email = '';
         vm.password = '';
         vm.sucursal = {sucursal_id: -1};
         vm.caja = {caja_id: -1};
         vm.dir = (vm.redirect == undefined) ? '/' : vm.redirect;
-
         vm.login = login;
         vm.loginFacebook = loginFacebook;
         vm.loginGoogle = loginGoogle;
 
         function login() {
             UserService.login(vm.email, vm.password, vm.sucursal.sucursal_id, vm.caja.caja_id).then(function (data) {
-                if (data != undefined) {
+                if(data != undefined){
+                    $rootScope.$broadcast('login-success');
                     $location.path(vm.dir);
+                }else{
+                    $rootScope.$broadcast('login-error');
                 }
             })
         }
