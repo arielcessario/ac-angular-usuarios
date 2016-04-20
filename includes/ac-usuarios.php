@@ -28,7 +28,7 @@ class Usuarios extends Main
 
             $file = 'error.log';
             $current = file_get_contents($file);
-            $current .= date('Y-m-d H:i:s') .": " . $e . "\n";
+            $current .= date('Y-m-d H:i:s') . ": " . $e . "\n";
             file_put_contents($file, $current);
 
             header('HTTP/1.0 500 Internal Server Error');
@@ -247,7 +247,14 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
             $direcciones = $db->get('direcciones');
             $results[$key]['direcciones'] = $direcciones;
         }
+
+        $res = array();
+        foreach ($results as $row) {
+            $res[$row['usuario_id']] = $row;
+        }
+
         echo json_encode($results);
+//        echo json_encode($res);
     }
 
     /* @name: login
@@ -370,9 +377,9 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
      */
     function create($params)
     {
-        $db = new MysqliDb();
+        $db = self::$instance->db;
         $db->startTransaction();
-        $user_decoded = checkUsuario(json_decode($params["user"]));
+        $user_decoded = self::checkUsuario(json_decode($params["user"]));
         $options = ['cost' => 12];
         $password = password_hash($user_decoded->password, PASSWORD_BCRYPT, $options);
 
@@ -412,14 +419,17 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
 
             if ($dir > -1) {
                 $db->commit();
+                header('HTTP/1.0 200 Ok');
                 echo json_encode($result);
             } else {
                 $db->rollback();
-                echo json_encode(-1);
+                header('HTTP/1.0 500 Internal Server Error');
+                echo $db->getLastError();
             }
         } else {
             $db->rollback();
-            echo json_encode(-1);
+            header('HTTP/1.0 500 Internal Server Error');
+            echo $db->getLastError();
         }
     }
 
@@ -431,7 +441,7 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
     function userExist($params)
     {
         //Instancio la conexion con la DB
-        $db = new MysqliDb();
+        $db = self::$instance->db;
         //Armo el filtro por email
         $db->where("mail", $params["mail"]);
 
@@ -457,7 +467,7 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
      */
     function changePassword($usuario_id, $pass_old, $pass_new)
     {
-        $db = new MysqliDb();
+        $db = self::$instance->db;
 
         $db->where('usuario_id', $usuario_id);
         $results = $db->get("usuarios");
@@ -489,8 +499,9 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
      */
     function update($params)
     {
-        $db = new MysqliDb();
-        $user_decoded = checkUsuario(json_decode($params["user"]));
+        $db = self::$instance->db;
+        $db->startTransaction();
+        $user_decoded = self::checkUsuario(json_decode($params["user"]));
 
         $db->where('usuario_id', $user_decoded->usuario_id);
 
@@ -514,7 +525,7 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
         );
 
         if ($user_decoded->password != '') {
-            changePassword($user_decoded->usuario_id, '', $user_decoded->password);
+            self::changePassword($user_decoded->usuario_id, '', $user_decoded->password);
         }
 
         if ($db->update('usuarios', $data)) {
@@ -532,13 +543,16 @@ from movimientos where cuenta_id like '1.1.2.%' and movimiento_id in
             $dir = $db->update('direcciones', $data);
 
             if ($dir) {
-                echo json_encode(1);
+                header('HTTP/1.0 200 Ok');
+                echo json_encode('Guardado con éxito');
             } else {
-                echo json_encode(-1);
+                header('HTTP/1.0 500 Internal Server Error');
+                echo $db->getLastError();
             }
 
         } else {
-            echo json_encode(-1);
+            header('HTTP/1.0 500 Internal Server Error');
+            echo $db->getLastError();
         }
     }
 
