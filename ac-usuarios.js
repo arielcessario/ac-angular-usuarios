@@ -265,6 +265,7 @@
                     var deferred = $q.defer();
                     cachedData = $httpDefaultCache.get(urlGet);
                     deferred.resolve(cachedData);
+                    AcUtilsGlobals.stopWaiting();
                     return deferred.promise;
                 }
             }
